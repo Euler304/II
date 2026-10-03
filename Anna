@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- บรรทัดนี้สำคัญมากสำหรับมือถือ เพื่อปรับขนาดหน้าจอให้พอดี -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Be My Valentine?</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* สีพื้นหลังแบบไล่สีเหมือนในคลิป */
+            background: linear-gradient(180deg, #ff9a9e 0%, #fecfef 100%);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            overflow: hidden; /* ป้องกันการเลื่อนหน้าจอเมื่อปุ่มกระโดดไปมา */
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+            min-height: 350px;
+        }
+        h1 {
+            font-size: 28px;
+            color: #111;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 25px;
+            font-weight: 500;
+        }
+        .question {
+            font-size: 17px;
+            color: #444;
+            margin-bottom: 30px;
+            line-height: 1.4;
+            padding: 0 10px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            height: 50px;
+        }
+        button {
+            font-size: 16px;
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        #btn-yes {
+            background-color: #1a1a1a;
+            color: white;
+            z-index: 10;
+        }
+        #btn-no {
+            background-color: #f2f2f2;
+            color: #333;
+            position: relative;
+            z-index: 5;
+        }
+        .footer-text {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        .footer-text .strikethrough {
+            text-decoration: line-through;
+            font-size: 10px;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        /* ส่วนของหน้าต่างที่ตอบตกลงแล้ว (ซ่อนไว้ก่อน) */
+        #success-screen {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .success-title {
+            font-size: 32px;
+            color: #ff4b82;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .cat-gif {
+            width: 180px;
+            margin-top: 20px;
+            border-radius: 12px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card" id="card">
+        <!-- คุณสามารถเปลี่ยนชื่อตรงนี้ได้ -->
+        <h1>น้องแอนนาค้าบ น้องจะซัดกับพี่ไหม 💌</h1>
+        <div class="subtitle">James has a question...</div>
+        
+        <div id="question-screen">
+            <div class="question">babe, will you do me the honor to be your valentine?</div>
+            
+            <div class="button-group">
+                <button id="btn-yes">ซัด 🩷</button>
+                <button id="btn-no">ไม่</button>
+            </div>
+            
+            <div class="footer-text">
+                The No button is shy.
+                <span class="strikethrough">I'm sure: No</span>
+            </div>
+        </div>
+
+        <!-- หน้าต่างเมื่อกดปุ่ม Yes -->
+        <div id="success-screen">
+            <div class="success-title">อ้าาา ได้  🩷</div>
+            <div class="question">เจอกัน</div>
+            <!-- ดึงรูปแมวเด้งๆ น่ารักๆ มาใช้ -->
+            <img src="https://media.tenor.com/efC6wVq0t4MAAAAi/peach-cat.gif" alt="Happy Cat" class="cat-gif">
+        </div>
+    </div>
+
+    <script>
+        const btnNo = document.getElementById('btn-no');
+        const btnYes = document.getElementById('btn-yes');
+        const questionScreen = document.getElementById('question-screen');
+        const successScreen = document.getElementById('success-screen');
+        const card = document.getElementById('card');
+
+        // ฟังก์ชันสำหรับทำให้ปุ่มหนี
+        function moveButton() {
+            // คำนวณขอบเขตของกล่องเพื่อให้ปุ่มกระโดดอยู่แค่ด้านใน
+            const cardRect = card.getBoundingClientRect();
+            const btnRect = btnNo.getBoundingClientRect();
+
+            // สุ่มตำแหน่ง X และ Y
+            const maxX = cardRect.width - btnRect.width - 40; 
+            const maxY = cardRect.height - btnRect.height - 40;
+
+            const randomX = Math.floor(Math.random() * maxX) + 20;
+            const randomY = Math.floor(Math.random() * maxY) + 20;
+
+            // เปลี่ยนให้ปุ่มมีตำแหน่งแบบ Absolute เพื่อให้ลอยเหนือองค์ประกอบอื่น
+            btnNo.style.position = 'absolute';
+            btnNo.style.left = randomX + 'px';
+            btnNo.style.top = randomY + 'px';
+        }
+
+        // สำหรับมือถือ (เมื่อเอานิ้วแตะ)
+        btnNo.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // ป้องกันไม่ให้คลิกโดนจริงๆ
+            moveButton();
+        });
+
+        // สำหรับคอมพิวเตอร์ (เมื่อเอาเมาส์ชี้)
+        btnNo.addEventListener('mouseover', moveButton);
+
+        // เมื่อกดปุ่ม Yes
+        btnYes.addEventListener('click', function() {
+            questionScreen.style.display = 'none';
+            successScreen.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
